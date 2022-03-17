@@ -234,6 +234,7 @@ async function checkPullRequestsForBranches(context, event, branchName) {
       per_page: maxPageSize
     });
     allPullRequets.push(...pullRequests);
+    logger.trace("Found", pullRequests.length, "pull requests");
     hasMore = pullRequests.length === maxPageSize;
   } while (hasMore);
 
