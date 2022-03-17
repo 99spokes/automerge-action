@@ -223,7 +223,7 @@ async function checkPullRequestsForBranches(context, event, branchName) {
   const allPullRequets = [];
   do {
     logger.trace("Fetching page", page, "...");
-    const { data: pullRequests } = await octokit.pulls.list({
+    const response = await octokit.pulls.list({
       owner: event.repository.owner.login,
       repo: event.repository.name,
       state: "open",
@@ -233,6 +233,9 @@ async function checkPullRequestsForBranches(context, event, branchName) {
       page,
       per_page: maxPageSize
     });
+
+    logger.trace(response);
+    const pullRequests = response.data;
     allPullRequets.push(...pullRequests);
     logger.trace("Found", pullRequests.length, "pull requests");
     hasMore = pullRequests.length === maxPageSize;
