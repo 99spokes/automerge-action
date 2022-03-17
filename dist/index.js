@@ -230,8 +230,7 @@ async function checkPullRequestsForBranches(context, event, branchName) {
       head: `${event.repository.owner.login}:${branchName}`,
       sort: "updated",
       direction: "desc",
-      page,
-      per_page: maxPageSize
+      per_page: MAX_PR_COUNT
     });
 
     logger.trace(response);
