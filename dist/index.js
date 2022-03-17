@@ -8,7 +8,7 @@
 const process = __nccwpck_require__(7282);
 
 const { ClientError, logger } = __nccwpck_require__(6979);
-const { update } = __nccwpck_require__(3056);
+const { update, skipPullRequest } = __nccwpck_require__(3056);
 const { merge } = __nccwpck_require__(452);
 const { branchName } = __nccwpck_require__(4024);
 
@@ -217,20 +217,37 @@ async function handleStatusUpdate(context, eventName, event) {
 async function checkPullRequestsForBranches(context, event, branchName) {
   const { octokit } = context;
   logger.debug("Listing pull requests for", branchName, "...");
-  const { data: pullRequests } = await octokit.pulls.list({
-    owner: event.repository.owner.login,
-    repo: event.repository.name,
-    state: "open",
-    head: `${event.repository.owner.login}:${branchName}`,
-    sort: "updated",
-    direction: "desc",
-    per_page: MAX_PR_COUNT
-  });
+  let hasMore;
+  let page = 1;
+  const maxPageSize = 100;
+  const allPullRequets = [];
+  do {
+    logger.trace("Fetching page", page, "...");
+    const { data: pullRequests } = await octokit.pulls.list({
+      owner: event.repository.owner.login,
+      repo: event.repository.name,
+      state: "open",
+      head: `${event.repository.owner.login}:${branchName}`,
+      sort: "updated",
+      direction: "desc",
+      page: page++,
+      per_page: maxPageSize
+    });
+    allPullRequets.push(...pullRequests);
+    hasMore = pullRequests.length === maxPageSize;
+  } while (hasMore);
 
-  logger.trace("PR list:", pullRequests);
+  const pullRequestsToMerge = allPullRequets.filter(
+    x => !skipPullRequest(context, x)
+  );
+
+  logger.trace(
+    `Found ${allPullRequets.length} pull requests, ${pullRequestsToMerge.length} to merge.`
+  );
+  logger.trace({ pullRequestsToMerge: pullRequestsToMerge.map(x => x.url) });
 
   let updated = 0;
-  for (const pullRequest of pullRequests) {
+  for (const pullRequest of pullRequestsToMerge) {
     try {
       await updateAndMerge(context, pullRequest);
       ++updated;
@@ -1499,7 +1516,7 @@ async function rebase(dir, url, pullRequest) {
   return newHead;
 }
 
-module.exports = { update };
+module.exports = { update, skipPullRequest };
 
 
 /***/ }),
