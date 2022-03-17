@@ -219,7 +219,7 @@ async function checkPullRequestsForBranches(context, event, branchName) {
   logger.debug("Listing pull requests for", branchName, "...");
   let hasMore;
   let page = 1;
-  const maxPageSize = 100;
+  const maxPageSize = 10;
   const allPullRequets = [];
   do {
     logger.trace("Fetching page", page, "...");
