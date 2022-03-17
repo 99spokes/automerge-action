@@ -227,10 +227,12 @@ async function checkPullRequestsForBranches(context, event, branchName) {
       owner: event.repository.owner.login,
       repo: event.repository.name,
       state: "open",
-      head: `${event.repository.owner.login}:${branchName}`,
+      // we don't want to filter by branch name, we want all the PRs
+      //head: `${event.repository.owner.login}:${branchName}`,
       sort: "updated",
       direction: "desc",
-      per_page: MAX_PR_COUNT
+      per_page: maxPageSize,
+      page: page++
     });
 
     logger.trace(response);
@@ -238,7 +240,6 @@ async function checkPullRequestsForBranches(context, event, branchName) {
     allPullRequets.push(...pullRequests);
     logger.trace("Found", pullRequests.length, "pull requests");
     hasMore = pullRequests.length === maxPageSize;
-    page++;
   } while (hasMore);
 
   const pullRequestsToMerge = allPullRequets.filter(
