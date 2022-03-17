@@ -235,7 +235,6 @@ async function checkPullRequestsForBranches(context, event, branchName) {
       page: page++
     });
 
-    logger.trace(response);
     const pullRequests = response.data;
     allPullRequets.push(...pullRequests);
     logger.trace("Found", pullRequests.length, "pull requests");
