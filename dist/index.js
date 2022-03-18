@@ -1188,7 +1188,7 @@ function checkReady(pullRequest, context) {
 
 function mergeable(pullRequest) {
   const { mergeable_state } = pullRequest;
-  console.log(`checkReady ${mergeable_state}`);
+  console.log(`checkReady ${mergeable_state}`, pullRequest);
   if (mergeable_state == null || MAYBE_READY.includes(mergeable_state)) {
     logger.info("PR is probably ready: mergeable_state:", mergeable_state);
     return "success";
