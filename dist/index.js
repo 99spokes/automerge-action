@@ -251,11 +251,6 @@ async function checkPullRequestsForBranches(context, event, branchName) {
   let updated = 0;
   for (const pullRequest of pullRequestsToMerge) {
     try {
-      logger.trace({
-        owner: pullRequest.head.repo.owner.login,
-        repo: pullRequest.head.repo.name,
-        pull_number: pullRequest.number
-      });
       const { data: fullPullRequest } = await octokit.pulls.get({
         owner: pullRequest.head.repo.owner.login,
         repo: pullRequest.head.repo.name,
@@ -1066,7 +1061,7 @@ async function removeLabels(octokit, pullRequest, mergeRemoveLabels) {
 }
 
 async function addLabel(octokit, pullRequest, label) {
-  const labelNames = [...pullRequest.map(label => label.name), label];
+  const labelNames = [...pullRequest.labels.map(label => label.name), label];
 
   logger.debug("Adding labels:", labelNames);
 
