@@ -216,19 +216,18 @@ async function handleStatusUpdate(context, eventName, event) {
 
 async function checkPullRequestsForBranches(context, event, branchName) {
   const { octokit } = context;
-  logger.debug("Listing pull requests for", branchName, "...");
   let hasMore;
   let page = 1;
-  const maxPageSize = 10;
+  const maxPageSize = 100;
   const allPullRequets = [];
   do {
-    logger.trace("Fetching page", page, "...");
     const response = await octokit.pulls.list({
       owner: event.repository.owner.login,
       repo: event.repository.name,
       state: "open",
-      // we don't want to filter by branch name, we want all the PRs
-      //head: `${event.repository.owner.login}:${branchName}`,
+      head: branchName
+        ? `${event.repository.owner.login}:${branchName}`
+        : event.repository.owner.login,
       sort: "updated",
       direction: "desc",
       per_page: maxPageSize,
@@ -237,7 +236,6 @@ async function checkPullRequestsForBranches(context, event, branchName) {
 
     const pullRequests = response.data;
     allPullRequets.push(...pullRequests);
-    logger.trace("Found", pullRequests.length, "pull requests");
     hasMore = pullRequests.length === maxPageSize;
   } while (hasMore);
 
@@ -361,7 +359,7 @@ async function handleWorkflowDispatch(context, eventName, event) {
     return;
   }
 
-  await checkPullRequestsForBranches(context, event, branch);
+  await checkPullRequestsForBranches(context, event, null);
 }
 
 async function handleScheduleTriggerOrRepositoryDispatch(context) {
