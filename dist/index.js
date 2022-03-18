@@ -967,7 +967,7 @@ async function merge(context, pullRequest, approvalCount) {
   const ready = await waitUntilReady(pullRequest, context);
   if (!ready) {
     logger.trace("failure, adding label");
-    await addLabel(octokit, pullRequest, "conflict");
+    await addLabel(octokit, pullRequest, "automerge-failed");
     return false;
   }
 
