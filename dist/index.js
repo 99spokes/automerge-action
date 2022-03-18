@@ -966,7 +966,6 @@ async function merge(context, pullRequest, approvalCount) {
 
   const ready = await waitUntilReady(pullRequest, context);
   if (!ready) {
-    logger.trace("failure, adding label");
     await addLabel(octokit, pullRequest, "automerge-failed");
     return false;
   }
@@ -1071,8 +1070,6 @@ async function addLabel(octokit, pullRequest, label) {
     issue_number: pullRequest.number,
     labels: labelNames
   });
-
-  logger.info("Added labels:", labelNames);
 }
 
 async function deleteBranch(octokit, pullRequest, mergeDeleteBranchFilter) {
@@ -1211,7 +1208,6 @@ function checkReady(pullRequest, context) {
 
 function mergeable(pullRequest) {
   const { mergeable_state } = pullRequest;
-  console.log(`checkReady ${mergeable_state}`, pullRequest);
   if (mergeable_state == null || MAYBE_READY.includes(mergeable_state)) {
     logger.info("PR is probably ready: mergeable_state:", mergeable_state);
     return "success";
