@@ -1248,6 +1248,13 @@ function tryMerge(
       if (pr.merged === true) {
         return "success";
       }
+
+      if (pr.mergeable_state === "dirty") {
+        logger.trace("PR is dirty, adding automerge-failed label");
+        await addLabel(octokit, pr, "automerge-failed");
+        return "failure";
+      }
+
       return mergePullRequest(
         octokit,
         pullRequest,
