@@ -1337,8 +1337,6 @@ function checkMergeError(e) {
     return "failure";
   } else {
     logger.info("Failed to merge PR:", m);
-    logger.info("full message");
-    logger.info(JSON.stringify(e, null, 2));
     return "retry";
   }
 }
